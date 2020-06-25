@@ -2,4 +2,6 @@
 <resources>
     <dimen name="day_button_size">40dp</dimen>
     <dimen name="day_button_max_font_size">22sp</dimen>
+
+    <dimen name="background_circle_dim">3dp</dimen>
 </resources>

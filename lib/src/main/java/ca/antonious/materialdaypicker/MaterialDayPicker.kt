@@ -3,24 +3,18 @@ package ca.antonious.materialdaypicker
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.StateListDrawable
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.ToggleButton
-import java.lang.Exception
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_0
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_1
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_2
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_3
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_4
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_5
-import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_6
+import kotlinx.android.synthetic.main.day_of_the_week_picker.view.*
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 /**
  * An android widget that resembles the day of the week picker in the
@@ -32,9 +26,9 @@ import kotlinx.android.synthetic.main.day_of_the_week_picker.view.toggle_6
  *     dayDeselected - the color when a day is deselected
  */
 class MaterialDayPicker @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     /**
@@ -97,16 +91,16 @@ class MaterialDayPicker @JvmOverloads constructor(
      */
     val selectedDays: List<Weekday>
         get() = getDayTogglesMatchedWithWeekday()
-            .filter { (toggle, _) -> toggle.isChecked }
-            .map { (_, weekday) -> weekday }
+                .filter { (toggle, _) -> toggle.isChecked }
+                .map { (_, weekday) -> weekday }
 
     /**
      * Returns a list of the currently disabled [Weekday]s
      */
     val disabledDays: List<Weekday>
         get() = getDayTogglesMatchedWithWeekday()
-            .filterNot { (toggle, _) -> toggle.isEnabled }
-            .map { (_, weekday) -> weekday }
+                .filterNot { (toggle, _) -> toggle.isEnabled }
+                .map { (_, weekday) -> weekday }
 
     private var firstDayOfWeek: Weekday = Weekday.getFirstDayOfWeekFor(locale = locale)
 
@@ -124,9 +118,9 @@ class MaterialDayPicker @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         return SavedStateData(
-            superState = super.onSaveInstanceState(),
-            selectedDays = selectedDays,
-            disableDays = disabledDays
+                superState = super.onSaveInstanceState(),
+                selectedDays = selectedDays,
+                disableDays = disabledDays
         )
     }
 
@@ -201,8 +195,8 @@ class MaterialDayPicker @JvmOverloads constructor(
      */
     fun setSelectedDays(weekdays: List<Weekday>) {
         val selectionDifference = selectionDifferenceOf(
-            initialSelectionState = SelectionState(selectedDays),
-            finalSelectionState = SelectionState(weekdays)
+                initialSelectionState = SelectionState(selectedDays),
+                finalSelectionState = SelectionState(weekdays)
         )
 
         applySelectionChangesUsing(selectionDifference)
@@ -341,10 +335,10 @@ class MaterialDayPicker @JvmOverloads constructor(
 
     private fun bindAttributes(attrs: AttributeSet?) {
         val typedAttributeArray = context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.MaterialDayPicker,
-            0,
-            0
+                attrs,
+                R.styleable.MaterialDayPicker,
+                0,
+                0
         )
 
         typedAttributeArray.getString(R.styleable.MaterialDayPicker_selectionMode)?.let { selectionModeClassName ->
@@ -352,6 +346,27 @@ class MaterialDayPicker @JvmOverloads constructor(
         }
 
         typedAttributeArray.recycle()
+    }
+
+    private fun getButtonBackground(attrs: AttributeSet?): StateListDrawable {
+        val res = StateListDrawable()
+
+        res.addState(intArrayOf(android.R.attr.state_pressed),
+                ShapeUtils.getOvalShape(context, R.color.dayPressed))
+        res.addState(intArrayOf(android.R.attr.state_checked, android.R.attr.state_enabled),
+                ShapeUtils.getOvalShape(context, R.color.daySelected))
+
+        res.addState(intArrayOf(android.R.attr.state_checked), ShapeUtils.getOvalShape(context, R.color.daySelectedAndDisabled))
+
+        res.addState(intArrayOf(android.R.attr.state_enabled), ShapeUtils.getOvalShape(context, R.color.dayDeselected))
+
+        // checked false, enabled false
+        res.addState(intArrayOf(), ShapeUtils.getOvalShape(context, R.color.dayDeselectedAndDisabled))
+
+        res.setExitFadeDuration(resources.getInteger(android.R.integer.config_shortAnimTime))
+
+
+        return res
     }
 
     private fun createSelectionMode(className: String): SelectionMode {
@@ -373,18 +388,34 @@ class MaterialDayPicker @JvmOverloads constructor(
             throw IllegalArgumentException("Cannot create SelectionMode named '$className' set via xml due to: ${ex.message}.")
         }
 
-        return selectionModeInstance as? SelectionMode ?: throw IllegalArgumentException("Cannot create Selection mode named '$className' set via xml since it does not extend ${SelectionMode::class.java.name}.")
+        return selectionModeInstance as? SelectionMode
+                ?: throw IllegalArgumentException("Cannot create Selection mode named '$className' set via xml since it does not extend ${SelectionMode::class.java.name}.")
     }
 
     private fun bindViews() {
         dayToggles.apply {
-            add(toggle_0)
-            add(toggle_1)
-            add(toggle_2)
-            add(toggle_3)
-            add(toggle_4)
-            add(toggle_5)
-            add(toggle_6)
+
+            add(toggle_0.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_1.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_2.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_3.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_4.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_5.apply {
+                background = getButtonBackground(null)
+            })
+            add(toggle_6.apply {
+                background = getButtonBackground(null)
+            })
         }
 
         localizeLabels()
@@ -433,9 +464,9 @@ class MaterialDayPicker @JvmOverloads constructor(
             maxTextSize
         } else {
             val buttonSafeArea = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                4f,
-                resources.displayMetrics
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    4f,
+                    resources.displayMetrics
             )
 
             // We scale down the original font size by multiplying it with the ratio
@@ -672,8 +703,8 @@ class MaterialDayPicker @JvmOverloads constructor(
 
     @Parcelize
     private data class SavedStateData(
-        val superState: Parcelable?,
-        val selectedDays: List<Weekday>,
-        val disableDays: List<Weekday>
+            val superState: Parcelable?,
+            val selectedDays: List<Weekday>,
+            val disableDays: List<Weekday>
     ) : Parcelable
 }
